@@ -1,14 +1,11 @@
 <nz-layout class="app-layout">
   <nz-layout>
     <nz-header>
-      <div class="app-header">
-        <span class="header-trigger" (click)="isCollapsed = !isCollapsed">
-            <i class="trigger"
-               nz-icon
-               [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
-            ></i>
-        </span>
-      </div>
+      <div class="logo"></div>
+      <ul nz-menu nzTheme="dark" nzMode="horizontal" class="header-menu">
+        <li nz-menu-item nzSelected>nav 2</li>
+        <li nz-menu-item>nav 3</li>
+      </ul>
     </nz-header>
     <nz-content>
       <div class="inner-content">

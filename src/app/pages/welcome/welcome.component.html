@@ -1,5 +1,10 @@
-<button nz-button [nzType]="'primary'" (click)="showModal()"><span>Show Modal</span></button>
 <app-add-invest></app-add-invest>
+<div class="">
+  <button nz-button [nzType]="'primary'" (click)="showModal()">
+    <i nz-icon nzType="plus" nzTheme="outline"></i>
+    <span>Add invest</span>
+  </button>
+</div>
 
 <nz-table #basicTable [nzData]="investElements">
   <thead>

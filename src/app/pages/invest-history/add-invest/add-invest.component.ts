@@ -6,6 +6,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {InvestElement} from '../../../model/InvestElement';
 import {Coin} from '../../../model/Coin';
 import {InvestService} from '../../../services/invest.service';
+import {noFutureDateValidator} from '../../../utils/validators';
 
 @Component({
   selector: 'app-add-invest',
@@ -39,7 +40,7 @@ export class AddInvestComponent implements OnInit {
   ngOnInit(): void {
     this.validateForm = this.fb.group({
       coinCtrl: [null, [Validators.required]],
-      investDateCtrl: [null, [Validators.required]],
+      investDateCtrl: [null, [Validators.required, noFutureDateValidator()]],
       valueBoughtCtrl: [null, [Validators.required]],
       sourceCurrencyCtrl: [null, [Validators.required]],
       conversionRateCtrl: [null, [Validators.required]],

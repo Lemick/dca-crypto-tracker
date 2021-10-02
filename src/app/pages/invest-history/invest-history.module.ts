@@ -1,8 +1,7 @@
 import {NgModule} from '@angular/core';
 
-import {WelcomeRoutingModule} from './welcome-routing.module';
+import {InvestHistoryRoutingModule} from './invest-history-routing.module';
 
-import {WelcomeComponent} from './welcome.component';
 import {NzModalModule} from 'ng-zorro-antd/modal';
 import {NzButtonModule} from 'ng-zorro-antd/button';
 import {NzFormModule} from 'ng-zorro-antd/form';
@@ -14,10 +13,11 @@ import {NzInputNumberModule} from 'ng-zorro-antd/input-number';
 import {NzDatePickerModule} from 'ng-zorro-antd/date-picker';
 import { AddInvestComponent } from './add-invest/add-invest.component';
 import {NzTableModule} from 'ng-zorro-antd/table';
+import {InvestHistoryComponent} from './invest-history.component';
 
 @NgModule({
   imports: [
-    WelcomeRoutingModule,
+    InvestHistoryRoutingModule,
     NzModalModule,
     NzButtonModule,
     NzFormModule,
@@ -30,10 +30,10 @@ import {NzTableModule} from 'ng-zorro-antd/table';
     NzDatePickerModule,
     NzTableModule
   ],
-  declarations: [WelcomeComponent, AddInvestComponent],
-  exports: [WelcomeComponent]
+  declarations: [InvestHistoryComponent, AddInvestComponent],
+  exports: [InvestHistoryComponent]
 })
-export class WelcomeModule {
+export class InvestHistoryModule {
 
 
 }

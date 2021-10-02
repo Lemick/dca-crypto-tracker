@@ -3,11 +3,11 @@ import {InvestElement} from '../../model/InvestElement';
 import {InvestService} from '../../services/invest.service';
 
 @Component({
-  selector: 'app-welcome',
-  templateUrl: './welcome.component.html',
-  styleUrls: ['./welcome.component.css']
+  selector: 'app-invest-history',
+  templateUrl: './invest-history.component.html',
+  styleUrls: ['./invest-history.component.css']
 })
-export class WelcomeComponent {
+export class InvestHistoryComponent {
 
   investElements: InvestElement[];
 

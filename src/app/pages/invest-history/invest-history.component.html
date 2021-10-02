@@ -17,10 +17,10 @@
   </thead>
   <tbody>
   <tr *ngFor="let invest of basicTable.data">
-    <td>{{ invest.dateInvest }}</td>
+    <td>{{ invest.dateInvest | date }}</td>
     <td><img src="{{ invest.coinLogoUrl }}"/> {{ invest.coinId | uppercase }}</td>
     <td>{{ invest.sourceCurrency | uppercase }}</td>
-    <td>{{ invest.conversionRate | number }}</td>
+    <td>{{ invest.conversionRate | number }} {{ invest.sourceCurrency | uppercase }}</td>
   </tr>
   </tbody>
 </nz-table>

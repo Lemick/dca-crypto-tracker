@@ -1,0 +1,65 @@
+<nz-modal [(nzVisible)]="isVisible" nzTitle="The first Modal" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()"
+  [nzOkDisabled]="!validateForm.valid">
+  <ng-container *nzModalContent>
+    <form nz-form [nzLayout]="'horizontal'" [formGroup]="validateForm">
+      <nz-form-item>
+        <nz-form-label [nzSm]="8" [nzXs]="24">Invest Date</nz-form-label>
+        <nz-form-control [nzSm]="16" [nzXs]="24" nzErrorTip="Please input your username!">
+          <nz-input-group>
+            <nz-date-picker formControlName="investDateCtrl" (ngModelChange)="changeInvestDate($event)"  [(ngModel)]="selectedDate"></nz-date-picker>
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="8" [nzXs]="24">Currency</nz-form-label>
+        <nz-form-control [nzSm]="16" [nzXs]="24" nzErrorTip="Please input your username!">
+          <nz-input-group>
+            <nz-select formControlName="coinCtrl" nzShowSearch nzAllowClear nzPlaceHolder="Select Currency"
+              [nzCustomTemplate]="defaultTemplate" (ngModelChange)="changeSelectedCoin($event)"
+              [(ngModel)]="selectedCoin">
+              <nz-option *ngFor="let coin of availableCoins" nzCustomContent [nzLabel]="coin.name" [nzValue]="coin">
+                {{coin.name}}
+              </nz-option>
+            </nz-select>
+            <ng-template #defaultTemplate let-selected>
+              <img [src]="this.selectedCoinInfo?.image.thumb" /> {{ selected.nzLabel }}
+            </ng-template>
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="8" [nzXs]="24">Currency</nz-form-label>
+        <nz-form-control [nzSm]="16" [nzXs]="24" nzErrorTip="Please input your username!">
+          <nz-input-group>
+            <nz-select formControlName="sourceCurrencyCtrl" (ngModelChange)="changeMarketCurrency($event)" nzShowSearch nzAllowClear nzPlaceHolder="marketCurrency"
+              [(ngModel)]="selectedSourceCurrency">
+              <nz-option *ngFor="let marketCurrency of marketCurrencies" nzCustomContent [nzLabel]="marketCurrency"
+                [nzValue]="marketCurrency">
+                {{marketCurrency | uppercase }}
+              </nz-option>
+            </nz-select>
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>Value exchanged</nz-form-label>
+        <nz-form-control [nzSm]="16" [nzXs]="24" nzErrorTip="Please input a value!">
+          <nz-input-group>
+            <nz-input-number formControlName="valueBoughtCtrl" [(ngModel)]="selectedCryptoValue"  [nzMin]="0" [nzStep]="0.1"
+              [nzPlaceHolder]="'Enter a value'"></nz-input-number>
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>Conversion rate</nz-form-label>
+        <nz-form-control [nzSm]="16" [nzXs]="24" nzErrorTip="Please input a value!">
+          <nz-input-group>
+            <nz-input-number formControlName="conversionRateCtrl" [(ngModel)]="selectedConversionRate" [nzMin]="0" [nzStep]="0.1"
+              [nzPlaceHolder]="'Enter a value'"></nz-input-number>
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+</nz-modal>

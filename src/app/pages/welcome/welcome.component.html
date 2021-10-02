@@ -1,0 +1,21 @@
+<button nz-button [nzType]="'primary'" (click)="showModal()"><span>Show Modal</span></button>
+<app-add-invest></app-add-invest>
+
+<nz-table #basicTable [nzData]="investElements">
+  <thead>
+  <tr>
+    <th>Date de l'investissement</th>
+    <th>Cryptomonnaie</th>
+    <th>Fiat</th>
+    <th>Valeur d'achat</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let invest of basicTable.data">
+    <td>{{ invest.dateInvest }}</td>
+    <td><img src="{{ invest.coinLogoUrl }}"/> {{ invest.coinId | uppercase }}</td>
+    <td>{{ invest.sourceCurrency | uppercase }}</td>
+    <td>{{ invest.conversionRate | number }}</td>
+  </tr>
+  </tbody>
+</nz-table>

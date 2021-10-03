@@ -23,7 +23,7 @@ export class AddInvestComponent implements OnInit {
 
   selectedDate: Date;
   selectedCoin: MarketCoin;
-  selectedCryptoValue: number;
+  selectedValueExchanged: number;
   selectedSourceCurrency: MarketCurrency;
   selectedConversionRate: number;
 
@@ -59,7 +59,7 @@ export class AddInvestComponent implements OnInit {
       dateInvest: this.selectedDate,
       sourceCurrency: this.selectedSourceCurrency,
       coinLogoUrl: (this.selectedCoinInfo as any).image,
-      cryptoValue: this.selectedCryptoValue,
+      valueExchanged: this.selectedValueExchanged,
       conversionRate: this.selectedConversionRate
     };
     this.investService.addInvestElement(this.investElement);

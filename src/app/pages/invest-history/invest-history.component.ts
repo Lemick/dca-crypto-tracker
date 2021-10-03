@@ -2,7 +2,6 @@ import {Component} from '@angular/core';
 import {InvestElement} from '../../model/InvestElement';
 import {InvestService} from '../../services/invest.service';
 import {CryptoApiService} from '../../services/crypto-api.service';
-import {MarketCoin} from '../../model/MarketCoin';
 import {CoinPrice} from '../../model/CoinPrice';
 
 @Component({
@@ -13,11 +12,6 @@ import {CoinPrice} from '../../model/CoinPrice';
 export class InvestHistoryComponent {
 
   isLoading = true;
-
-  /**
-   * faire un tableau associatif avec clé étant une paire coinID currency pour calculer les gains
-   */
-  marketCoins: MarketCoin[];
   investElements: InvestElement[];
   todayCoinsMarketPrices: Map<string, CoinPrice> = new Map();
 
@@ -32,11 +26,18 @@ export class InvestHistoryComponent {
     this.investService.toggleInvestPopup(true);
   }
 
-  calculateGain(investElement: InvestElement): number {
+  calculateNetGain(investElement: InvestElement): number {
     const coinMarketPrice = this.todayCoinsMarketPrices.get(investElement.coinId);
-    const pastValue = investElement.cryptoValue * investElement.conversionRate;
-    const currentValue = investElement.cryptoValue * coinMarketPrice.market_data.current_price[investElement.sourceCurrency];
+    const pastValue = investElement.valueExchanged * investElement.conversionRate;
+    const currentValue = investElement.valueExchanged * coinMarketPrice.market_data.current_price[investElement.sourceCurrency];
     return pastValue - currentValue;
+  }
+
+  calculateRateGain(investElement: InvestElement): number {
+    const coinMarketPrice = this.todayCoinsMarketPrices.get(investElement.coinId);
+    const pastValue = (investElement.valueExchanged * investElement.conversionRate);
+    const currentValue = investElement.valueExchanged * coinMarketPrice.market_data.current_price[investElement.sourceCurrency];
+    return ((pastValue - currentValue) / pastValue) * 100;
   }
 
   refreshTodayCoinMarketPrices(): void {
@@ -53,4 +54,5 @@ export class InvestHistoryComponent {
         });
     }
   }
+
 }

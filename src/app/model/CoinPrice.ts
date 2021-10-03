@@ -1,5 +1,6 @@
-export interface CoinPrice {
+import {MarketCoin} from './MarketCoin';
 
+export interface CoinPrice {
   id: string;
   symbol: string;
   name: string;
@@ -8,5 +9,5 @@ export interface CoinPrice {
       [fiatCode: string]: number;
     }
   };
-
 }
+

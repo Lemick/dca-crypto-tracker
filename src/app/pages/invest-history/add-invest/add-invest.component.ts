@@ -1,10 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {MarketCurrency} from '../../../model/enum/MarketCurrency';
 import {MarketCoin} from '../../../model/MarketCoin';
-import {CryptoService} from '../../../services/crypto.service';
+import {CryptoApiService} from '../../../services/crypto-api.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {InvestElement} from '../../../model/InvestElement';
-import {Coin} from '../../../model/Coin';
 import {InvestService} from '../../../services/invest.service';
 import {noFutureDateValidator} from '../../../utils/validators';
 
@@ -29,10 +28,10 @@ export class AddInvestComponent implements OnInit {
   selectedConversionRate: number;
 
   investElement: InvestElement = null;
-  investElementInFetching = false;
+  isFetchingCoinPrice = false;
 
   constructor(private investService: InvestService,
-              private cryptoService: CryptoService,
+              private cryptoService: CryptoApiService,
               private fb: FormBuilder) {
     cryptoService.fetchMarketCoins().subscribe(value => this.availableCoins = value);
   }
@@ -55,7 +54,16 @@ export class AddInvestComponent implements OnInit {
   }
 
   handleOk(): void {
+    this.investElement = {
+      coinId: this.selectedCoin.id,
+      dateInvest: this.selectedDate,
+      sourceCurrency: this.selectedSourceCurrency,
+      coinLogoUrl: (this.selectedCoinInfo as any).image,
+      cryptoValue: this.selectedCryptoValue,
+      conversionRate: this.selectedConversionRate
+    };
     this.investService.addInvestElement(this.investElement);
+    this.validateForm.reset();
     this.isVisible = false;
   }
 
@@ -63,49 +71,38 @@ export class AddInvestComponent implements OnInit {
     this.isVisible = false;
   }
 
-  changeSelectedCoin($event: Coin): void {
+  changeSelectedCoin($event: MarketCoin): void {
     if ($event) {
-      this.selectedCoinInfo = null;
-      this.cryptoService.fetchCoinInfo($event.id).subscribe(value => {
-        this.selectedCoinInfo = value;
-        if (this.doesCoinSettingsAreValid()) {
-          this.investElementInFetching = true;
-          this.updateInvestElement();
-        }
-      });
+      this.selectedCoinInfo = $event;
+      if (this.doesCoinSettingsAreValid()) {
+        this.isFetchingCoinPrice = true;
+        this.updateConversionRate();
+      }
     }
   }
 
   changeInvestDate($event: Date): void {
     if ($event && this.doesCoinSettingsAreValid()) {
-      this.investElementInFetching = true;
-      this.updateInvestElement();
+      this.isFetchingCoinPrice = true;
+      this.updateConversionRate();
     }
   }
 
   changeMarketCurrency($event: MarketCurrency): void {
     if ($event && this.doesCoinSettingsAreValid()) {
-      this.investElementInFetching = true;
-      this.updateInvestElement();
+      this.isFetchingCoinPrice = true;
+      this.updateConversionRate();
     }
   }
 
-  updateInvestElement(): void {
+  updateConversionRate(): void {
     this.cryptoService
       .fetchCoinPrice(this.selectedCoin.id, this.selectedDate)
       .subscribe(responseCoinPrice => {
         console.log('price=', responseCoinPrice, this.selectedSourceCurrency);
-
-        this.investElement = {
-          coinId: this.selectedCoin.id,
-          dateInvest: this.selectedDate,
-          sourceCurrency: this.selectedSourceCurrency,
-          coinLogoUrl: (this.selectedCoinInfo as any).image?.thumb,
-          cryptoValue: this.selectedCryptoValue,
-          conversionRate: responseCoinPrice.market_data.current_price[this.selectedSourceCurrency]
-        };
-        this.validateForm.controls.conversionRateCtrl.setValue(this.investElement.conversionRate);
-        this.investElementInFetching = false;
+        const conversionRate = responseCoinPrice.market_data.current_price[this.selectedSourceCurrency];
+        this.validateForm.controls.conversionRateCtrl.setValue(conversionRate);
+        this.isFetchingCoinPrice = false;
       });
   }
 

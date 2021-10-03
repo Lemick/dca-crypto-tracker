@@ -1,3 +1,8 @@
 nz-date-picker, nz-input-number {
   width: 100%
 }
+
+nz-select img {
+  width: 20px;
+  margin-right: 5px;
+}

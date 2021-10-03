@@ -1,0 +1,12 @@
+td img {
+  width: 20px;
+  margin-right: 5px;
+}
+
+.positive {
+  color: green;
+}
+
+.negative {
+  color: orangered;
+}

@@ -6,6 +6,6 @@ export interface InvestElement {
   coinId: string;
   sourceCurrency: MarketCurrency;
   cryptoValue: number;
-  conversionRate: number; // Manuel ou auto
+  conversionRate: number;
   coinLogoUrl: string;
 }

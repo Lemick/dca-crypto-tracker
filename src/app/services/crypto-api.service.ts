@@ -1,18 +1,17 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {Coin} from '../model/Coin';
+import {Observable, Subject} from 'rxjs';
 import {formatDate} from '@angular/common';
 import {CoinPrice} from '../model/CoinPrice';
 import {MarketCoin} from '../model/MarketCoin';
 
-
 @Injectable({
   providedIn: 'root'
 })
-export class CryptoService {
+export class CryptoApiService {
 
   private readonly baseUrl = 'https://api.coingecko.com/api/v3';
+  private readonly currentMarketCoinsSubject = new Subject();
 
   constructor(private httpClient: HttpClient) {
   }
@@ -23,11 +22,6 @@ export class CryptoService {
       .set('localization', String(false));
 
     return this.httpClient.get(this.baseUrl + '/coins/bitcoin', {params});
-  }
-
-  fetchCoins(): Observable<Coin[]> {
-    const params = new HttpParams().set('include_platform', String(false));
-    return this.httpClient.get<Coin[]>(this.baseUrl + '/coins/list', {params});
   }
 
   fetchCoinInfo(coinId: string): Observable<object> {
@@ -52,6 +46,16 @@ export class CryptoService {
     return this.httpClient.get<CoinPrice>(this.baseUrl + '/coins/' + coinId + '/history', {params});
   }
 
+  initCurrentMarketCoinsObservable(): Observable<MarketCoin[]> {
+    const params = new HttpParams()
+      .set('vs_currency', 'eur')
+      .set('order', 'market_cap_desc')
+      .set('per_page', String(250))
+      .set('page', String(1));
+
+    return this.httpClient.get<MarketCoin[]>(this.baseUrl + '/coins/markets', {params});
+  }
+
   fetchMarketCoins(): Observable<MarketCoin[]> {
     const params = new HttpParams()
       .set('vs_currency', 'eur')
@@ -62,5 +66,13 @@ export class CryptoService {
     return this.httpClient.get<MarketCoin[]>(this.baseUrl + '/coins/markets', {params});
   }
 
+  fetchCoins(): Observable<MarketCoin[]> {
+    const params = new HttpParams()
+      .set('vs_currency', 'eur')
+      .set('order', 'market_cap_desc')
+      .set('per_page', String(250))
+      .set('page', String(1));
 
+    return this.httpClient.get<MarketCoin[]>(this.baseUrl + '/coins/markets', {params});
+  }
 }

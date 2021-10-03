@@ -6,21 +6,26 @@
   </button>
 </div>
 
-<nz-table #basicTable [nzData]="investElements">
-  <thead>
-  <tr>
-    <th>Date de l'investissement</th>
-    <th>Cryptomonnaie</th>
-    <th>Fiat</th>
-    <th>Valeur d'achat</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr *ngFor="let invest of basicTable.data">
-    <td>{{ invest.dateInvest | date }}</td>
-    <td><img src="{{ invest.coinLogoUrl }}"/> {{ invest.coinId | uppercase }}</td>
-    <td>{{ invest.sourceCurrency | uppercase }}</td>
-    <td>{{ invest.conversionRate | number }} {{ invest.sourceCurrency | uppercase }}</td>
-  </tr>
-  </tbody>
-</nz-table>
+<ng-template [ngIf]="!isLoading">
+  <nz-table #basicTable [nzData]="investElements">
+    <thead>
+    <tr>
+      <th>Date de l'investissement</th>
+      <th>Cryptomonnaie</th>
+      <th>Valeur d'achat</th>
+      <th>Gain</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let investElement of basicTable.data">
+      <td>{{ investElement.dateInvest | date }}</td>
+      <td><img src="{{ investElement.coinLogoUrl }}"/> {{ investElement.coinId | uppercase }}</td>
+      <td>{{ investElement.conversionRate | number }} {{ investElement.sourceCurrency | uppercase }}</td>
+      <td
+        [ngClass]="calculateGain(investElement) >= 0 ? 'positive' : 'negative'">
+        {{ calculateGain(investElement) | number}} {{ investElement.sourceCurrency | uppercase }}
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+</ng-template>

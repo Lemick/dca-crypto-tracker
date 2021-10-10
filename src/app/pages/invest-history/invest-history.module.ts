@@ -14,23 +14,28 @@ import {NzDatePickerModule} from 'ng-zorro-antd/date-picker';
 import { AddInvestComponent } from './add-invest/add-invest.component';
 import {NzTableModule} from 'ng-zorro-antd/table';
 import {InvestHistoryComponent} from './invest-history.component';
+import {NzUploadModule} from 'ng-zorro-antd/upload';
+import { ImportInvestComponent } from './import-invest/import-invest.component';
+import {NzCheckboxModule} from 'ng-zorro-antd/checkbox';
 
 @NgModule({
-  imports: [
-    InvestHistoryRoutingModule,
-    NzModalModule,
-    NzButtonModule,
-    NzFormModule,
-    ReactiveFormsModule,
-    NzSelectModule,
-    CommonModule,
-    NzIconModule,
-    FormsModule,
-    NzInputNumberModule,
-    NzDatePickerModule,
-    NzTableModule
-  ],
-  declarations: [InvestHistoryComponent, AddInvestComponent],
+    imports: [
+        InvestHistoryRoutingModule,
+        NzModalModule,
+        NzButtonModule,
+        NzFormModule,
+        ReactiveFormsModule,
+        NzSelectModule,
+        CommonModule,
+        NzIconModule,
+        FormsModule,
+        NzInputNumberModule,
+        NzDatePickerModule,
+        NzTableModule,
+        NzUploadModule,
+        NzCheckboxModule
+    ],
+  declarations: [InvestHistoryComponent, AddInvestComponent, ImportInvestComponent],
   exports: [InvestHistoryComponent]
 })
 export class InvestHistoryModule {

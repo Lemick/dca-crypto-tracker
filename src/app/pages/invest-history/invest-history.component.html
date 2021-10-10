@@ -1,8 +1,15 @@
 <app-add-invest></app-add-invest>
+<app-import-invest></app-import-invest>
+
 <div class="">
-  <button nz-button [nzType]="'primary'" (click)="showModal()">
+  <button nz-button [nzType]="'primary'" (click)="showAddInvestModal()">
     <i nz-icon nzType="plus" nzTheme="outline"></i>
     <span>Add invest</span>
+  </button>
+
+  <button nz-button [nzType]="'default'" (click)="showImportInvestModal()">
+    <i nz-icon nzType="import" nzTheme="outline"></i>
+    <span>Import CSV</span>
   </button>
 </div>
 
@@ -30,7 +37,7 @@
       </td>
       <td
         [ngClass]="calculateRateGain(investElement) >= 0 ? 'positive' : 'negative'">
-        {{ calculateRateGain(investElement) | number}}%
+        {{ calculateRateGain(investElement) | number }}%
       </td>
     </tr>
     </tbody>

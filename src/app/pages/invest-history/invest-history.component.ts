@@ -4,6 +4,14 @@ import {InvestService} from '../../services/invest.service';
 import {CryptoApiService} from '../../services/crypto-api.service';
 import {CoinPrice} from '../../model/CoinPrice';
 
+interface IBinanceExport {
+  UTC_Time: Date;
+  Account: string;
+  Operation: string;
+  Coin: string;
+  Change: string;
+}
+
 @Component({
   selector: 'app-invest-history',
   templateUrl: './invest-history.component.html',
@@ -15,6 +23,7 @@ export class InvestHistoryComponent {
   investElements: InvestElement[];
   todayCoinsMarketPrices: Map<string, CoinPrice> = new Map();
 
+
   constructor(private investService: InvestService, private cryptoService: CryptoApiService) {
     this.investService.getInvestElements().subscribe(value => {
       this.investElements = value;
@@ -22,8 +31,12 @@ export class InvestHistoryComponent {
     });
   }
 
-  showModal(): void {
-    this.investService.toggleInvestPopup(true);
+  showAddInvestModal(): void {
+    this.investService.toggleAddInvestPopup(true);
+  }
+
+  showImportInvestModal(): void {
+    this.investService.toggleImportInvestPopup(true);
   }
 
   calculateNetGain(investElement: InvestElement): number {

@@ -10,7 +10,8 @@ export class InvestService {
   private readonly LOCAL_STORAGE_KEY = 'investElements';
   private readonly elements: InvestElement[] = [];
 
-  private readonly investPopupOpenRequests$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private readonly addInvestPopupOpenRequests$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private readonly importInvestPopupOpenRequests$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   private readonly investElementsSubject$: BehaviorSubject<InvestElement[]> = new BehaviorSubject<InvestElement[]>(this.elements);
 
   constructor() {
@@ -34,11 +35,19 @@ export class InvestService {
   }
 
   getInvestPopupChanges(): Observable<boolean> {
-    return this.investPopupOpenRequests$.asObservable();
+    return this.addInvestPopupOpenRequests$.asObservable();
   }
 
-  toggleInvestPopup(value: boolean): void {
-    this.investPopupOpenRequests$.next(value);
+  getImportInvestPopupChanges(): Observable<boolean> {
+    return this.importInvestPopupOpenRequests$.asObservable();
+  }
+
+  toggleAddInvestPopup(value: boolean): void {
+    this.addInvestPopupOpenRequests$.next(value);
+  }
+
+  toggleImportInvestPopup(value: boolean): void {
+    this.importInvestPopupOpenRequests$.next(value);
   }
 
   emitsInvestElements(): void {

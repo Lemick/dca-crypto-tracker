@@ -1,4 +1,4 @@
-<nz-modal [(nzVisible)]="isVisible" nzTitle="The first Modal" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()"
+<nz-modal [(nzVisible)]="isVisible" nzTitle="Add invest" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()"
           [nzOkDisabled]="!validateForm.valid">
   <ng-container *nzModalContent>
     <form nz-form [nzLayout]="'horizontal'" [formGroup]="validateForm">

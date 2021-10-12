@@ -1,4 +1,3 @@
-import {MarketCoin} from './MarketCoin';
 import {MarketCurrency} from './enum/MarketCurrency';
 
 export interface BinanceImportOperation {

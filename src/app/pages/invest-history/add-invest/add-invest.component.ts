@@ -1,11 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {MarketCurrency} from '../../../model/enum/MarketCurrency';
-import {MarketCoin} from '../../../model/MarketCoin';
 import {CryptoApiService} from '../../../services/crypto-api.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {InvestElement} from '../../../model/InvestElement';
 import {InvestService} from '../../../services/invest.service';
 import {noFutureDateValidator} from '../../../utils/validators';
+import {MarketCoinInfos} from '../../../model/MarketCoinInfos';
 
 @Component({
   selector: 'app-add-invest',
@@ -18,11 +18,11 @@ export class AddInvestComponent implements OnInit {
   isVisible: boolean;
   marketCurrencies = Object.keys(MarketCurrency);
 
-  availableCoins: MarketCoin[];
+  availableCoins: MarketCoinInfos[];
   selectedCoinInfo: object = null;
 
   selectedDate: Date;
-  selectedCoin: MarketCoin;
+  selectedCoin: MarketCoinInfos;
   selectedValueExchanged: number;
   selectedSourceCurrency: MarketCurrency;
   selectedConversionRate: number;
@@ -33,7 +33,7 @@ export class AddInvestComponent implements OnInit {
   constructor(private investService: InvestService,
               private cryptoService: CryptoApiService,
               private fb: FormBuilder) {
-    cryptoService.fetchMarketCoins().subscribe(value => this.availableCoins = value);
+    cryptoService.popularMarketCoins$.subscribe(value => this.availableCoins = value);
   }
 
   ngOnInit(): void {
@@ -56,10 +56,9 @@ export class AddInvestComponent implements OnInit {
   handleOk(): void {
     this.investElement = {
       coinId: this.selectedCoin.id,
-      dateInvest: this.selectedDate,
+      investDate: this.selectedDate,
       sourceCurrency: this.selectedSourceCurrency,
-      coinLogoUrl: (this.selectedCoinInfo as any).image,
-      valueExchanged: this.selectedValueExchanged,
+      valueAcquired: this.selectedValueExchanged,
       conversionRate: this.selectedConversionRate
     };
     this.investService.addInvestElement(this.investElement);
@@ -71,7 +70,7 @@ export class AddInvestComponent implements OnInit {
     this.isVisible = false;
   }
 
-  changeSelectedCoin($event: MarketCoin): void {
+  changeSelectedCoin($event: MarketCoinInfos): void {
     if ($event) {
       this.selectedCoinInfo = $event;
       if (this.doesCoinSettingsAreValid()) {

@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {BinanceImportOperation, parseBinanceCsvLine} from '../model/BinanceImportOperation';
 import * as csvToJson from 'csvtojson';
-import {groupBy, sum} from '../utils/functionalUtils';
-import {ImportInvestElement} from '../model/ImportInvestElement';
+import {groupBy, sum} from '../utils/arrayUtils';
+import {ImportInvestLine} from '../model/ImportInvestLine';
 import {Observable} from 'rxjs';
 import {MarketCurrency} from '../model/enum/MarketCurrency';
 
@@ -14,46 +14,46 @@ export class CsvImportService {
   constructor() {
   }
 
-  importBinanceCsv(text: string): Observable<ImportInvestElement[]> {
-    return new Observable<ImportInvestElement[]>(subscriber => {
-      const operations = new Array<BinanceImportOperation>();
+  importBinanceCsv(text: string): Observable<ImportInvestLine[]> {
+    return new Observable<ImportInvestLine[]>(subscriber => {
+      const csvBinanceOperations = new Array<BinanceImportOperation>();
       csvToJson().fromString(text).subscribe((data, lineNumber) => {
-          console.log(data);
-          operations.push(parseBinanceCsvLine(data));
+          const parsedLine = parseBinanceCsvLine(data);
+          if (parsedLine.Operation !== 'Deposit') {
+            csvBinanceOperations.push(parseBinanceCsvLine(data));
+          }
         },
         err => subscriber.error(err),
         () => {
-          subscriber.next(this.convertToImportInvestElement(operations));
+          subscriber.next(this.convertToimportInvestLine(csvBinanceOperations));
           subscriber.complete();
         }
       );
     });
   }
 
-  private convertToImportInvestElement(operations: BinanceImportOperation[]): ImportInvestElement[] {
-    operations = operations.filter(value => value.Operation !== 'Deposit');
+  private convertToimportInvestLine(operations: BinanceImportOperation[]): ImportInvestLine[] {
     return Array.from(groupBy(operations, e => e.UTC_Time.getTime()).values())
-      .filter(timeGroupedOperations => timeGroupedOperations.length > 1)
       .map(timeGroupedOperations => groupBy(timeGroupedOperations, e => e.Coin))
       .filter(currencyGroupedOperations => currencyGroupedOperations.size === 2)
-      .map((currencyGroupedOperations, index) => this.extractImportInvestElement(currencyGroupedOperations, index));
+      .map((currencyGroupedOperations, index) => this.extractimportInvestLine(currencyGroupedOperations, index));
   }
 
-  private extractImportInvestElement(currencyGroupedOperations: Map<MarketCurrency, BinanceImportOperation[]>, index: number): ImportInvestElement {
-    const importInvestElement = {id: index} as ImportInvestElement;
+  private extractimportInvestLine(currencyGroupedOperations: Map<MarketCurrency, BinanceImportOperation[]>, index: number): ImportInvestLine {
+    const importInvestLine = {id: index} as ImportInvestLine;
     currencyGroupedOperations.forEach((value, keyCoin) => {
       const changeTotal = sum(value, e => e.Change);
-      importInvestElement.investDate = value[0].UTC_Time;
+      importInvestLine.investDate = value[0].UTC_Time;
       if (changeTotal > 0) {
-        importInvestElement.valueAcquired = changeTotal;
-        importInvestElement.fromCurrency = keyCoin;
+        importInvestLine.valueAcquired = changeTotal;
+        importInvestLine.toCurrency = keyCoin;
       } else {
-        importInvestElement.valueSpent = changeTotal;
-        importInvestElement.toCurrency = keyCoin;
+        importInvestLine.valueSpent = changeTotal;
+        importInvestLine.fromCurrency = keyCoin;
       }
     });
-    console.log('generated import invest', importInvestElement);
-    return importInvestElement;
+    console.log('generated import invest', importInvestLine);
+    return importInvestLine;
   }
 
 }

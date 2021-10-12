@@ -27,9 +27,9 @@
     </thead>
     <tbody>
     <tr *ngFor="let investElement of basicTable.data">
-      <td>{{ investElement.dateInvest | date }}</td>
-      <td><img src="{{ investElement.coinLogoUrl }}"/> {{ investElement.coinId | uppercase }}</td>
-      <td>{{investElement.valueExchanged}}</td>
+      <td>{{ investElement.investDate | date }}</td>
+      <td><img src="{{ getLogoUrl(investElement.coinId) }}"/> {{ investElement.coinId | uppercase }}</td>
+      <td>{{ investElement.valueAcquired }}</td>
       <td>{{ investElement.conversionRate | number }} {{ investElement.sourceCurrency | uppercase }}</td>
       <td
         [ngClass]="calculateNetGain(investElement) >= 0 ? 'positive' : 'negative'">

@@ -1,8 +1,10 @@
-import {Component} from '@angular/core';
+import {ChangeDetectionStrategy, Component} from '@angular/core';
 import {InvestElement} from '../../model/InvestElement';
 import {InvestService} from '../../services/invest.service';
 import {CryptoApiService} from '../../services/crypto-api.service';
-import {CoinPrice} from '../../model/CoinPrice';
+import {CoinMarketPrice} from '../../model/CoinMarketPrice';
+import {forkJoin, Observable} from 'rxjs';
+import {tap} from 'rxjs/operators';
 
 interface IBinanceExport {
   UTC_Time: Date;
@@ -15,19 +17,21 @@ interface IBinanceExport {
 @Component({
   selector: 'app-invest-history',
   templateUrl: './invest-history.component.html',
-  styleUrls: ['./invest-history.component.css']
+  styleUrls: ['./invest-history.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InvestHistoryComponent {
 
   isLoading = true;
   investElements: InvestElement[];
-  todayCoinsMarketPrices: Map<string, CoinPrice> = new Map();
-
+  todayCoinsMarketPrices: Map<string, CoinMarketPrice> = new Map();
 
   constructor(private investService: InvestService, private cryptoService: CryptoApiService) {
-    this.investService.getInvestElements().subscribe(value => {
-      this.investElements = value;
-      this.refreshTodayCoinMarketPrices();
+    this.investService.getInvestElements().subscribe(investElements => {
+      console.log('get new invest elements');
+      this.isLoading = true;
+      this.investElements = investElements;
+      this.loadTodayCoinMarketPrices();
     });
   }
 
@@ -40,32 +44,34 @@ export class InvestHistoryComponent {
   }
 
   calculateNetGain(investElement: InvestElement): number {
+    console.log('calculate');
     const coinMarketPrice = this.todayCoinsMarketPrices.get(investElement.coinId);
-    const pastValue = investElement.valueExchanged * investElement.conversionRate;
-    const currentValue = investElement.valueExchanged * coinMarketPrice.market_data.current_price[investElement.sourceCurrency];
-    return pastValue - currentValue;
+    const pastValue = investElement.valueAcquired * investElement.conversionRate;
+    const currentValue = investElement.valueAcquired * coinMarketPrice.market_data.current_price[investElement.sourceCurrency];
+    return currentValue - pastValue;
   }
 
   calculateRateGain(investElement: InvestElement): number {
     const coinMarketPrice = this.todayCoinsMarketPrices.get(investElement.coinId);
-    const pastValue = (investElement.valueExchanged * investElement.conversionRate);
-    const currentValue = investElement.valueExchanged * coinMarketPrice.market_data.current_price[investElement.sourceCurrency];
-    return ((pastValue - currentValue) / pastValue) * 100;
+    const pastValue = (investElement.valueAcquired * investElement.conversionRate);
+    const currentValue = investElement.valueAcquired * coinMarketPrice.market_data.current_price[investElement.sourceCurrency];
+    return ((currentValue - pastValue) / pastValue) * 100;
   }
 
-  refreshTodayCoinMarketPrices(): void {
-    this.isLoading = true;
-    const distinctCoinIds = new Set(this.investElements
-      .map(investElement => investElement.coinId)
-      .filter(coinId => !this.todayCoinsMarketPrices.has(coinId))
-    );
+  loadTodayCoinMarketPrices(): void {
+    const distinctCoinIds = new Set(this.investElements.map(investElement => investElement.coinId));
+    const coinPricesToFetch = new Array<Observable<CoinMarketPrice>>();
     for (const coinId of distinctCoinIds) {
-      this.cryptoService.fetchCoinPrice(coinId, new Date())
-        .subscribe(coinPrice => {
-          this.todayCoinsMarketPrices.set(coinId, coinPrice);
-          this.isLoading = false;
-        });
+      const coinPrice$ = this.cryptoService
+        .fetchCoinPrice(coinId, new Date())
+        .pipe(tap(coinPrice => this.todayCoinsMarketPrices.set(coinId, coinPrice)));
+      coinPricesToFetch.push(coinPrice$);
     }
+    forkJoin(coinPricesToFetch).subscribe(() => this.isLoading = false);
   }
 
+  getLogoUrl(coinId: string): string {
+    console.log('get logo url');
+    return this.todayCoinsMarketPrices.get(coinId).image.small;
+  }
 }

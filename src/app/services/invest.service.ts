@@ -17,7 +17,7 @@ export class InvestService {
   constructor() {
     if (localStorage.getItem(this.LOCAL_STORAGE_KEY)) {
       this.elements = JSON.parse(localStorage.getItem(this.LOCAL_STORAGE_KEY));
-      this.elements.forEach(e => e.dateInvest = new Date(e.dateInvest));
+      this.elements.forEach(e => e.investDate = new Date(e.investDate));
       this.emitsInvestElements();
     }
   }
@@ -25,7 +25,7 @@ export class InvestService {
   addInvestElement(investElement: InvestElement): void {
     console.log('Adding invest element', investElement);
     this.elements.push(investElement);
-    this.elements.sort((a, b) => a.dateInvest.getTime() > b.dateInvest.getTime() ? 1 : -1);
+    this.elements.sort((a, b) => a.investDate.getTime() > b.investDate.getTime() ? 1 : -1);
     localStorage.setItem(this.LOCAL_STORAGE_KEY, JSON.stringify(this.elements));
     this.emitsInvestElements();
   }

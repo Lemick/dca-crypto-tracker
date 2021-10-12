@@ -1,10 +1,9 @@
 import {MarketCurrency} from './enum/MarketCurrency';
 
 export interface InvestElement {
-  dateInvest: Date;
+  investDate: Date;
   coinId: string;
   sourceCurrency: MarketCurrency;
-  valueExchanged: number;
+  valueAcquired: number;
   conversionRate: number;
-  coinLogoUrl: string;
 }

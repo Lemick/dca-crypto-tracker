@@ -1,4 +1,4 @@
-export interface MarketCoin {
+export interface MarketCoinInfos {
 
   id: string;
   symbol: string;

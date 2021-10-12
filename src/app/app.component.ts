@@ -1,6 +1,12 @@
 import { Component } from '@angular/core';
-import {InvestService} from './services/invest.service';
 
+/**
+ * TODO
+ * Delete line invest
+ * Fix trigger onChange flood
+ * Different theme color ?
+ * UT Csv parsing
+ */
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',

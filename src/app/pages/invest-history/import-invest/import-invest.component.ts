@@ -2,8 +2,10 @@ import {Component, OnInit} from '@angular/core';
 import {CsvImportService} from '../../../services/csv-import.service';
 import {InvestService} from '../../../services/invest.service';
 import {NzUploadFile} from 'ng-zorro-antd/upload/interface';
-import {ImportInvestElement} from '../../../model/ImportInvestElement';
+import {calculateConversionRate, ImportInvestLine} from '../../../model/ImportInvestLine';
 import {InvestElement} from '../../../model/InvestElement';
+import {CryptoApiService} from '../../../services/crypto-api.service';
+import {MarketCoinInfos} from '../../../model/MarketCoinInfos';
 
 @Component({
   selector: 'app-import-invest',
@@ -13,15 +15,17 @@ import {InvestElement} from '../../../model/InvestElement';
 export class ImportInvestComponent implements OnInit {
 
   isVisible: boolean;
-  importInvestElements: ImportInvestElement[] = [];
+  importInvestLines: ImportInvestLine[] = [];
   uploadLocalFile = this._uploadLocalFile.bind(this);
 
   allCheckedState = false;
   intermediateCheckState = false;
   setOfCheckedId = new Set<number>();
+  availableCoins: MarketCoinInfos[];
 
-  constructor(private investService: InvestService, private csvImportService: CsvImportService) {
+  constructor(private investService: InvestService, private cryptoService: CryptoApiService, private csvImportService: CsvImportService) {
     this.investService.getImportInvestPopupChanges().subscribe(value => this.isVisible = value);
+    this.cryptoService.popularMarketCoins$.subscribe(value => this.availableCoins = value);
   }
 
   ngOnInit(): void {
@@ -33,16 +37,23 @@ export class ImportInvestComponent implements OnInit {
 
   handleOk(): void {
     this.isVisible = false;
-    this.importInvestElements.forEach(value => {
-    });
+    this.importInvestLines
+      .filter(importInvestLine => this.setOfCheckedId.has(importInvestLine.id))
+      .forEach(importInvestLine => {
+        const investElement = this.convertImportLineToInvest(importInvestLine);
+        this.investService.addInvestElement(investElement);
+      });
   }
 
-  private toInvestElement(importInvestElement: ImportInvestElement): InvestElement {
+  private convertImportLineToInvest(importInvestLine: ImportInvestLine): InvestElement {
+    const sourceCoinInfos = this.availableCoins.find(marketCoin => marketCoin.symbol.toLowerCase() === importInvestLine.toCurrency.toLowerCase());
     return {
-      coinId: '',
-      conversionRate: 1,
-      dateInvest: importInvestElement
-    } as unknown as InvestElement;
+      investDate: importInvestLine.investDate,
+      sourceCurrency: importInvestLine.fromCurrency.toLowerCase(),
+      coinId: sourceCoinInfos.id,
+      valueAcquired: importInvestLine.valueAcquired,
+      conversionRate: calculateConversionRate(importInvestLine)
+    } as InvestElement;
   }
 
   updateCheckedSet(id: number, checked: boolean): void {
@@ -59,22 +70,22 @@ export class ImportInvestComponent implements OnInit {
   }
 
   onAllChecked(checked: boolean): void {
-    this.importInvestElements.forEach(({id}) => this.updateCheckedSet(id, checked));
+    this.importInvestLines.forEach(({id}) => this.updateCheckedSet(id, checked));
     this.refreshCheckedStatus();
   }
 
   refreshCheckedStatus(): void {
-    this.allCheckedState = this.importInvestElements.every(({id}) => this.setOfCheckedId.has(id));
-    this.intermediateCheckState = this.importInvestElements.some(({id}) => this.setOfCheckedId.has(id)) && !this.allCheckedState;
+    this.allCheckedState = this.importInvestLines.every(({id}) => this.setOfCheckedId.has(id));
+    this.intermediateCheckState = this.importInvestLines.some(({id}) => this.setOfCheckedId.has(id)) && !this.allCheckedState;
   }
 
   private _uploadLocalFile(file: NzUploadFile, fileList: NzUploadFile[]): boolean {
-    console.log(this);
     const fileReader = new FileReader();
     fileReader.onloadend = () => {
+      this.setOfCheckedId = new Set();
       this.csvImportService.importBinanceCsv(fileReader.result as string).subscribe(
-        elements => this.importInvestElements = elements,
-        error => console.log('error', error));
+        elements => this.importInvestLines = elements,
+        error => console.error(error));
     };
     fileReader.readAsText(file as any);
     return false;

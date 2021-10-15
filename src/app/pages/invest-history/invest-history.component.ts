@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component} from '@angular/core';
 import {InvestElement} from '../../model/InvestElement';
 import {InvestService} from '../../services/invest.service';
 import {CryptoApiService} from '../../services/crypto-api.service';
@@ -6,12 +6,9 @@ import {CoinMarketPrice} from '../../model/CoinMarketPrice';
 import {forkJoin, Observable} from 'rxjs';
 import {tap} from 'rxjs/operators';
 
-interface IBinanceExport {
-  UTC_Time: Date;
-  Account: string;
-  Operation: string;
-  Coin: string;
-  Change: string;
+interface InvestElementGain {
+  gainValue: number;
+  gainRate: number;
 }
 
 @Component({
@@ -22,16 +19,15 @@ interface IBinanceExport {
 })
 export class InvestHistoryComponent {
 
-  isLoading = true;
-  investElements: InvestElement[];
+  isLoading = false;
+  investElements: InvestElement[] = [];
   todayCoinsMarketPrices: Map<string, CoinMarketPrice> = new Map();
+  investElementsGains: Map<InvestElement, InvestElementGain> = new Map();
 
-  constructor(private investService: InvestService, private cryptoService: CryptoApiService) {
+  constructor(private investService: InvestService, private cryptoService: CryptoApiService, private cdRef: ChangeDetectorRef) {
     this.investService.getInvestElements().subscribe(investElements => {
-      console.log('get new invest elements');
       this.isLoading = true;
-      this.investElements = investElements;
-      this.loadTodayCoinMarketPrices();
+      this.loadInvestElementsMarketData(investElements);
     });
   }
 
@@ -43,23 +39,18 @@ export class InvestHistoryComponent {
     this.investService.toggleImportInvestPopup(true);
   }
 
-  calculateNetGain(investElement: InvestElement): number {
-    console.log('calculate');
+  calculateInvestGain(investElement: InvestElement): InvestElementGain {
     const coinMarketPrice = this.todayCoinsMarketPrices.get(investElement.coinId);
     const pastValue = investElement.valueAcquired * investElement.conversionRate;
     const currentValue = investElement.valueAcquired * coinMarketPrice.market_data.current_price[investElement.sourceCurrency];
-    return currentValue - pastValue;
+    return {
+      gainValue: currentValue - pastValue,
+      gainRate: ((currentValue - pastValue) / pastValue) * 100
+    };
   }
 
-  calculateRateGain(investElement: InvestElement): number {
-    const coinMarketPrice = this.todayCoinsMarketPrices.get(investElement.coinId);
-    const pastValue = (investElement.valueAcquired * investElement.conversionRate);
-    const currentValue = investElement.valueAcquired * coinMarketPrice.market_data.current_price[investElement.sourceCurrency];
-    return ((currentValue - pastValue) / pastValue) * 100;
-  }
-
-  loadTodayCoinMarketPrices(): void {
-    const distinctCoinIds = new Set(this.investElements.map(investElement => investElement.coinId));
+  loadInvestElementsMarketData(investElements: InvestElement[]): void {
+    const distinctCoinIds = new Set(investElements.map(investElement => investElement.coinId));
     const coinPricesToFetch = new Array<Observable<CoinMarketPrice>>();
     for (const coinId of distinctCoinIds) {
       const coinPrice$ = this.cryptoService
@@ -67,11 +58,14 @@ export class InvestHistoryComponent {
         .pipe(tap(coinPrice => this.todayCoinsMarketPrices.set(coinId, coinPrice)));
       coinPricesToFetch.push(coinPrice$);
     }
-    forkJoin(coinPricesToFetch).subscribe(() => this.isLoading = false);
-  }
+    forkJoin(coinPricesToFetch).subscribe(() => {
+      investElements.forEach(investElement => {
+        this.investElementsGains.set(investElement, this.calculateInvestGain(investElement));
+      });
+      this.isLoading = false;
+      this.investElements = investElements;
+      this.cdRef.detectChanges();
 
-  getLogoUrl(coinId: string): string {
-    console.log('get logo url');
-    return this.todayCoinsMarketPrices.get(coinId).image.small;
+    });
   }
 }

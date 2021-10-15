@@ -13,33 +13,34 @@
   </button>
 </div>
 
-<ng-template [ngIf]="!isLoading">
-  <nz-table #basicTable [nzData]="investElements">
-    <thead>
-    <tr>
-      <th>Date de l'investissement</th>
-      <th>Cryptomonnaie</th>
-      <th>Valeur echangée</th>
-      <th>Valeur d'achat</th>
-      <th>Gain net</th>
-      <th>Gain %</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let investElement of basicTable.data">
+<nz-table #table [nzData]="investElements">
+  <thead>
+  <tr>
+    <th>Date de l'investissement</th>
+    <th>Cryptomonnaie</th>
+    <th>Valeur echangée</th>
+    <th>Valeur d'achat</th>
+    <th>Gain net</th>
+    <th>Gain %</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let investElement of table.data">
       <td>{{ investElement.investDate | date }}</td>
-      <td><img src="{{ getLogoUrl(investElement.coinId) }}"/> {{ investElement.coinId | uppercase }}</td>
+      <td><img
+        src="{{ this.todayCoinsMarketPrices.get(investElement.coinId).image.small }}"/> {{ investElement.coinId | uppercase }}
+      </td>
       <td>{{ investElement.valueAcquired }}</td>
       <td>{{ investElement.conversionRate | number }} {{ investElement.sourceCurrency | uppercase }}</td>
       <td
-        [ngClass]="calculateNetGain(investElement) >= 0 ? 'positive' : 'negative'">
-        {{ calculateNetGain(investElement) | number}} {{ investElement.sourceCurrency | uppercase }}
+        [ngClass]="this.investElementsGains.get(investElement).gainValue >= 0 ? 'positive' : 'negative'">
+        {{ this.investElementsGains.get(investElement).gainValue | number}} {{ investElement.sourceCurrency | uppercase }}
       </td>
       <td
-        [ngClass]="calculateRateGain(investElement) >= 0 ? 'positive' : 'negative'">
-        {{ calculateRateGain(investElement) | number }}%
+        [ngClass]="this.investElementsGains.get(investElement).gainRate >= 0 ? 'positive' : 'negative'">
+        {{ this.investElementsGains.get(investElement).gainRate | number }}%
       </td>
     </tr>
-    </tbody>
-  </nz-table>
-</ng-template>
+  </tbody>
+</nz-table>
+

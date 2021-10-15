@@ -14,8 +14,7 @@ interface InvestElementGain {
 @Component({
   selector: 'app-invest-history',
   templateUrl: './invest-history.component.html',
-  styleUrls: ['./invest-history.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrls: ['./invest-history.component.css']
 })
 export class InvestHistoryComponent {
 
@@ -24,7 +23,7 @@ export class InvestHistoryComponent {
   todayCoinsMarketPrices: Map<string, CoinMarketPrice> = new Map();
   investElementsGains: Map<InvestElement, InvestElementGain> = new Map();
 
-  constructor(private investService: InvestService, private cryptoService: CryptoApiService, private cdRef: ChangeDetectorRef) {
+  constructor(private investService: InvestService, private cryptoService: CryptoApiService) {
     this.investService.getInvestElements().subscribe(investElements => {
       this.isLoading = true;
       this.loadInvestElementsMarketData(investElements);
@@ -64,8 +63,6 @@ export class InvestHistoryComponent {
       });
       this.isLoading = false;
       this.investElements = investElements;
-      this.cdRef.detectChanges();
-
     });
   }
 }

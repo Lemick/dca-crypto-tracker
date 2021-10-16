@@ -1,13 +1,17 @@
 <nz-modal [(nzVisible)]="isVisible" nzTitle="Import CSV" (nzOnCancel)="handleCancel()" [nzWidth]="800"
-          [nzOkDisabled]="setOfCheckedId.size === 0" (nzOnOk)="handleOk()" nzOkText="Import {{ setOfCheckedId.size}} elements">
+          [nzOkDisabled]="setOfCheckedId.size === 0" (nzOnOk)="handleOk()"
+          nzOkText="Import {{ setOfCheckedId.size}} elements">
   <ng-container *nzModalContent>
-    <nz-upload
-      [nzBeforeUpload]="uploadLocalFile">
-      <button nz-button>
-        <i nz-icon nzType="upload"></i>
-        Import Binance CSV
-      </button>
-    </nz-upload>
+
+    <div class="table-buttons">
+      <nz-upload
+        [nzBeforeUpload]="uploadLocalFile">
+        <button nz-button>
+          <i nz-icon nzType="upload"></i>
+          Import Binance CSV
+        </button>
+      </nz-upload>
+    </div>
 
     <nz-table
       #rowSelectionTable
@@ -15,7 +19,8 @@
       [nzData]="importInvestLines">
       <thead>
       <tr>
-        <th [nzChecked]="allCheckedState" [nzIndeterminate]="intermediateCheckState" (nzCheckedChange)="onAllChecked($event)"></th>
+        <th [nzChecked]="allCheckedState" [nzIndeterminate]="intermediateCheckState"
+            (nzCheckedChange)="onAllChecked($event)"></th>
         <th>Date</th>
         <th>Source</th>
         <th>Destination</th>

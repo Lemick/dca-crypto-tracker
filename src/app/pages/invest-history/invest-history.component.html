@@ -1,7 +1,7 @@
 <app-add-invest></app-add-invest>
 <app-import-invest></app-import-invest>
 
-<div class="">
+<div class="table-buttons">
   <button nz-button [nzType]="'primary'" (click)="showAddInvestModal()">
     <i nz-icon nzType="plus" nzTheme="outline"></i>
     <span>Add invest</span>
@@ -16,12 +16,18 @@
 <nz-table #table [nzData]="investElements">
   <thead>
   <tr>
-    <th>Date de l'investissement</th>
-    <th>Cryptomonnaie</th>
-    <th>Valeur echangée</th>
-    <th>Valeur d'achat</th>
-    <th>Gain net</th>
-    <th>Gain %</th>
+    <th
+      *ngFor="let header of headers"
+      [nzSortOrder]="header.sortOrder"
+      [nzSortFn]="header.sortFn"
+      [nzSortDirections]="header.sortDirections"
+      [nzShowFilter]="header.filterFn !== undefined"
+      [nzFilters]="header.listOfFilters"
+      [nzFilterFn]="header.filterFn"
+      [nzFilterMultiple]="header.filterMultiple"
+    >
+      {{ header.name }}
+    </th>
   </tr>
   </thead>
   <tbody>

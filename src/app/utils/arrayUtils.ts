@@ -11,3 +11,15 @@ export function sum<T>(array: T[], numberAccessorFn: (e: T) => number): number {
     0
   );
 }
+
+export function filterDuplicates<T, K>(array: T[], duplicateFn: (arrayValue: T, currentValue: T) => boolean): T[] {
+  return array.reduce(
+    (accumulator, currentValue) => {
+      if (accumulator.every(coin => duplicateFn(coin, currentValue))) {
+        accumulator.push(currentValue);
+      }
+      return accumulator;
+    },
+    new Array<T>()
+  );
+}

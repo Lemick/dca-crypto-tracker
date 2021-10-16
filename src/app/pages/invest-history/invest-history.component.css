@@ -10,3 +10,7 @@ td img {
 .negative {
   color: orangered;
 }
+
+.table-buttons {
+  margin-bottom: 10px;
+}

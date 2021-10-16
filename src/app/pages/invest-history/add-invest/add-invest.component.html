@@ -5,31 +5,27 @@
       <nz-form-item>
         <nz-form-label [nzSm]="8" [nzXs]="24">Invest date</nz-form-label>
         <nz-form-control [nzSm]="16" [nzXs]="24" nzErrorTip="Please input valid past date">
-          <nz-date-picker formControlName="investDateCtrl" (ngModelChange)="changeInvestDate($event)"
-                          [(ngModel)]="selectedDate"></nz-date-picker>
+          <nz-date-picker formControlName="investDateCtrl" (ngModelChange)="changeInvestDate($event)"></nz-date-picker>
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>
         <nz-form-label [nzSm]="8" [nzXs]="24">Coin</nz-form-label>
         <nz-form-control [nzSm]="16" [nzXs]="24" nzErrorTip="Please input valid coin">
           <nz-select formControlName="coinCtrl" nzShowSearch nzAllowClear
-                     [nzCustomTemplate]="selectCoinTemplate" (ngModelChange)="changeSelectedCoin($event)"
-                     [(ngModel)]="selectedCoin">
+                     [nzCustomTemplate]="selectCoinTemplate" (ngModelChange)="changeSelectedCoin($event)">
             <nz-option *ngFor="let coin of availableCoins" nzCustomContent [nzLabel]="coin.name" [nzValue]="coin">
               {{coin.name}}
             </nz-option>
           </nz-select>
           <ng-template #selectCoinTemplate let-selected>
-            <img [src]="this.selectedCoinInfo?.image"/> {{ selected.nzLabel }}
+            <img [src]="this.selectedCoin?.image"/> {{ selected.nzLabel }}
           </ng-template>
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>
         <nz-form-label [nzSm]="8" [nzXs]="24">Currency</nz-form-label>
         <nz-form-control [nzSm]="16" [nzXs]="24" nzErrorTip="Please input valid currency">
-          <nz-select formControlName="sourceCurrencyCtrl" (ngModelChange)="changeMarketCurrency($event)" nzShowSearch
-                     nzAllowClear
-                     [(ngModel)]="selectedSourceCurrency">
+          <nz-select formControlName="sourceCurrencyCtrl" (ngModelChange)="changeMarketCurrency($event)" nzShowSearch nzAllowClear>
             <nz-option *ngFor="let marketCurrency of marketCurrencies" nzCustomContent [nzLabel]="marketCurrency"
                        [nzValue]="marketCurrency">
               {{marketCurrency | uppercase }}
@@ -40,7 +36,7 @@
       <nz-form-item>
         <nz-form-label [nzSm]="8" [nzXs]="24">Value exchanged</nz-form-label>
         <nz-form-control [nzSm]="16" [nzXs]="24" nzErrorTip="Please input valid value">
-          <nz-input-number formControlName="valueBoughtCtrl" [(ngModel)]="selectedValueExchanged" [nzMin]="0"
+          <nz-input-number formControlName="valueBoughtCtrl" (ngModelChange)="changeValueExchanged($event)" [nzMin]="0"
                            [nzStep]="1"></nz-input-number>
         </nz-form-control>
       </nz-form-item>
@@ -48,7 +44,7 @@
       <nz-form-item>
         <nz-form-label [nzSm]="8" [nzXs]="24">Conversion rate</nz-form-label>
         <nz-form-control [nzSm]="16" [nzXs]="24" nzErrorTip="Please input valid conversion rate">
-          <nz-input-number formControlName="conversionRateCtrl" [(ngModel)]="selectedConversionRate" [nzMin]="0"
+          <nz-input-number formControlName="conversionRateCtrl"[nzMin]="0"
                            [nzStep]="1" [nzDisabled]="!doesCoinSettingsAreValid()">
           </nz-input-number>
         </nz-form-control>

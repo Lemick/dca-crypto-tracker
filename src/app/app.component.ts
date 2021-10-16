@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 /**
  * TODO
  * Delete line invest
- * Fix trigger onChange flood
+ * Add cache today coin prices
  * Different theme color ?
  * UT Csv parsing
  */

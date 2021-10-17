@@ -42,7 +42,8 @@ export class InvestHistoryComponent {
       sortFn: (a: InvestElement, b: InvestElement) => a.coinId.localeCompare(b.coinId),
       sortDirections: ['ascend', 'descend', null],
       filterMultiple: false,
-      filterFn: (coinId: string, item: InvestElement) => item.coinId === coinId
+      filterFn: (coinId: string, item: InvestElement) => item.coinId === coinId,
+      listOfFilters: []
     },
     {
       name: 'Valeur echangée',
@@ -94,6 +95,10 @@ export class InvestHistoryComponent {
 
   loadInvestElementsMarketData(investElements: InvestElement[]): void {
     const distinctCoinIds = new Set(investElements.map(investElement => investElement.coinId));
+    if (distinctCoinIds.size === 0) {
+      this.investElements = [];
+      return;
+    }
     const coinPricesToFetch = new Array<Observable<CoinMarketPrice>>();
     for (const coinId of distinctCoinIds) {
       const coinPrice$ = this.cryptoService

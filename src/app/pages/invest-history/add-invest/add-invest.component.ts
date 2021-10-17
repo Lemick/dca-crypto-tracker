@@ -57,7 +57,7 @@ export class AddInvestComponent implements OnInit {
       valueAcquired: this.selectedValueExchanged,
       conversionRate: this.validateForm.controls.conversionRateCtrl.value
     };
-    this.investService.addInvestElement(investElement);
+    this.investService.addInvestElements(investElement);
     this.validateForm.reset();
     this.isVisible = false;
   }

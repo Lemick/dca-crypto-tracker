@@ -3,9 +3,9 @@ import {MarketCurrency} from './enum/MarketCurrency';
 export interface ImportInvestLine {
   id: number;
   investDate: Date;
-  fromCurrency: MarketCurrency;
+  fromCurrency: string;
   valueSpent: number;
-  toCurrency: MarketCurrency;
+  toCurrency: string;
   valueAcquired: number;
 }
 

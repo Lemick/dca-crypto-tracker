@@ -22,9 +22,9 @@ export class InvestService {
     }
   }
 
-  addInvestElement(investElement: InvestElement): void {
-    console.log('Adding invest element', investElement);
-    this.elements.push(investElement);
+  addInvestElements(...items: InvestElement[]): void {
+    console.log('Adding invest elements', items);
+    this.elements.push(...items);
     this.saveElementsInLocalStorage();
     this.emitsInvestElements();
   }

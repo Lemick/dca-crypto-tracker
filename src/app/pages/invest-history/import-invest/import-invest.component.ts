@@ -6,6 +6,12 @@ import {calculateConversionRate, ImportInvestLine} from '../../../model/ImportIn
 import {InvestElement} from '../../../model/InvestElement';
 import {CryptoApiService} from '../../../services/crypto-api.service';
 import {MarketCoinInfos} from '../../../model/MarketCoinInfos';
+import {MarketCurrency} from '../../../model/enum/MarketCurrency';
+
+interface TableImportLine {
+  enabled: boolean;
+  importedLine: ImportInvestLine;
+}
 
 @Component({
   selector: 'app-import-invest',
@@ -15,7 +21,7 @@ import {MarketCoinInfos} from '../../../model/MarketCoinInfos';
 export class ImportInvestComponent implements OnInit {
 
   isVisible: boolean;
-  importInvestLines: ImportInvestLine[] = [];
+  importInvestLines: TableImportLine[] = [];
   uploadLocalFile = this._uploadLocalFile.bind(this);
 
   allCheckedState = false;
@@ -37,23 +43,10 @@ export class ImportInvestComponent implements OnInit {
 
   handleOk(): void {
     this.isVisible = false;
-    this.importInvestLines
-      .filter(importInvestLine => this.setOfCheckedId.has(importInvestLine.id))
-      .forEach(importInvestLine => {
-        const investElement = this.convertImportLineToInvest(importInvestLine);
-        this.investService.addInvestElement(investElement);
-      });
-  }
-
-  private convertImportLineToInvest(importInvestLine: ImportInvestLine): InvestElement {
-    const sourceCoinInfos = this.availableCoins.find(marketCoin => marketCoin.symbol.toLowerCase() === importInvestLine.toCurrency.toLowerCase());
-    return {
-      investDate: importInvestLine.investDate,
-      sourceCurrency: importInvestLine.fromCurrency.toLowerCase(),
-      coinId: sourceCoinInfos.id,
-      valueAcquired: importInvestLine.valueAcquired,
-      conversionRate: calculateConversionRate(importInvestLine)
-    } as InvestElement;
+    const importedInvestElements = this.importInvestLines
+      .filter(tableLine => this.setOfCheckedId.has(tableLine.importedLine.id))
+      .map(tableLine => this.convertImportLineToInvest(tableLine.importedLine));
+    this.investService.addInvestElements(...importedInvestElements);
   }
 
   updateCheckedSet(id: number, checked: boolean): void {
@@ -70,13 +63,15 @@ export class ImportInvestComponent implements OnInit {
   }
 
   onAllChecked(checked: boolean): void {
-    this.importInvestLines.forEach(({id}) => this.updateCheckedSet(id, checked));
+    this.importInvestLines
+      .filter(tableLine => tableLine.enabled)
+      .forEach(tableLine => this.updateCheckedSet(tableLine.importedLine.id, checked));
     this.refreshCheckedStatus();
   }
 
   refreshCheckedStatus(): void {
-    this.allCheckedState = this.importInvestLines.every(({id}) => this.setOfCheckedId.has(id));
-    this.intermediateCheckState = this.importInvestLines.some(({id}) => this.setOfCheckedId.has(id)) && !this.allCheckedState;
+    this.allCheckedState = this.importInvestLines.every(tableLine => this.setOfCheckedId.has(tableLine.importedLine.id));
+    this.intermediateCheckState = this.importInvestLines.some(tableLine => this.setOfCheckedId.has(tableLine.importedLine.id)) && !this.allCheckedState;
   }
 
   private _uploadLocalFile(file: NzUploadFile, fileList: NzUploadFile[]): boolean {
@@ -84,10 +79,30 @@ export class ImportInvestComponent implements OnInit {
     fileReader.onloadend = () => {
       this.setOfCheckedId = new Set();
       this.csvImportService.importBinanceCsv(fileReader.result as string).subscribe(
-        elements => this.importInvestLines = elements,
+        elements => {
+          this.importInvestLines = elements.map(importedLine => ({
+            enabled: this.isDestinationCurrencySupported(importedLine.toCurrency),
+            importedLine
+          } as TableImportLine));
+        },
         error => console.error(error));
     };
     fileReader.readAsText(file as any);
     return false;
+  }
+
+  private isDestinationCurrencySupported(destinationCurrency: string): boolean {
+    return this.availableCoins.some(marketCoin => marketCoin.symbol.toLowerCase() === destinationCurrency.toLowerCase());
+  }
+
+  private convertImportLineToInvest(importInvestLine: ImportInvestLine): InvestElement {
+    const sourceCoinInfos = this.availableCoins.find(marketCoin => marketCoin.symbol.toLowerCase() === importInvestLine.toCurrency.toLowerCase());
+    return {
+      investDate: importInvestLine.investDate,
+      sourceCurrency: importInvestLine.fromCurrency.toLowerCase(),
+      coinId: sourceCoinInfos.id,
+      valueAcquired: importInvestLine.valueAcquired,
+      conversionRate: calculateConversionRate(importInvestLine)
+    } as InvestElement;
   }
 }

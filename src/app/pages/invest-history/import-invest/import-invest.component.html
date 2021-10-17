@@ -29,12 +29,13 @@
       <tbody>
       <tr *ngFor="let data of rowSelectionTable.data">
         <td
-          [nzChecked]="setOfCheckedId.has(data.id)"
-          (nzCheckedChange)="onItemChecked(data.id, $event)"
+          [nzDisabled]="!data.enabled"
+          [nzChecked]="setOfCheckedId.has(data.importedLine.id)"
+          (nzCheckedChange)="onItemChecked(data.importedLine.id, $event)"
         ></td>
-        <td>{{ data.investDate | date }}</td>
-        <td>{{ data.valueSpent }} {{ data.fromCurrency }}</td>
-        <td>{{ data.valueAcquired }} {{ data.toCurrency }}</td>
+        <td>{{ data.importedLine.investDate | date }}</td>
+        <td>{{ data.importedLine.valueSpent }} {{ data.importedLine.fromCurrency }}</td>
+        <td>{{ data.importedLine.valueAcquired }} {{ data.importedLine.toCurrency }}</td>
       </tr>
       </tbody>
     </nz-table>

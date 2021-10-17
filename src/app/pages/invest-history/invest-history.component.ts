@@ -111,12 +111,17 @@ export class InvestHistoryComponent {
     });
   }
 
+  deleteRow(elementToRemove: InvestElement): void {
+    this.investService.removeInvestElement(elementToRemove);
+  }
+
   private updateCoinFilterList(): void {
     const listOfFilters = filterDuplicates(
       Array.from(this.todayCoinsMarketPrices.values()),
       (a, b) => a.id !== b.id
     ).map(coin => ({text: coin.name, value: coin.id}));
 
-    this.headers.find(header => header.name === 'Cryptomonnaie').listOfFilters = listOfFilters;
+    this.headers.find(header => header.name === 'Cryptomonnaie').listOfFilters = listOfFilters; // TODO enum ID
   }
+
 }

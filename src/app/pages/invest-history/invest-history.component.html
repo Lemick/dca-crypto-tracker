@@ -46,6 +46,9 @@
         [ngClass]="this.investElementsGains.get(investElement).gainRate >= 0 ? 'positive' : 'negative'">
         {{ this.investElementsGains.get(investElement).gainRate | number }}%
       </td>
+      <td>
+        <a nz-popconfirm nzPopconfirmTitle="Sure to delete?" (nzOnConfirm)="deleteRow(investElement)">Delete</a>
+      </td>
     </tr>
   </tbody>
 </nz-table>

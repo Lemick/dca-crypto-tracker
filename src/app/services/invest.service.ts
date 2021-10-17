@@ -8,7 +8,7 @@ import {BehaviorSubject, Observable} from 'rxjs';
 export class InvestService {
 
   private readonly LOCAL_STORAGE_KEY = 'investElements';
-  private readonly elements: InvestElement[] = [];
+  private elements: InvestElement[] = [];
 
   private readonly addInvestPopupOpenRequests$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   private readonly importInvestPopupOpenRequests$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
@@ -25,7 +25,13 @@ export class InvestService {
   addInvestElement(investElement: InvestElement): void {
     console.log('Adding invest element', investElement);
     this.elements.push(investElement);
-    localStorage.setItem(this.LOCAL_STORAGE_KEY, JSON.stringify(this.elements));
+    this.saveElementsInLocalStorage();
+    this.emitsInvestElements();
+  }
+
+  removeInvestElement(elementToRemove: InvestElement): void {
+    this.elements = this.elements.filter(e => e !== elementToRemove);
+    this.saveElementsInLocalStorage();
     this.emitsInvestElements();
   }
 
@@ -51,5 +57,9 @@ export class InvestService {
 
   emitsInvestElements(): void {
     this.investElementsSubject$.next([...this.elements]);
+  }
+
+  private saveElementsInLocalStorage(): void {
+    localStorage.setItem(this.LOCAL_STORAGE_KEY, JSON.stringify(this.elements));
   }
 }

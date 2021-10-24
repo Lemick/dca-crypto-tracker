@@ -11,12 +11,17 @@ import {shareReplay, tap} from 'rxjs/operators';
 })
 export class CryptoApiService {
 
+  readonly LOCAL_STORAGE_CACHE_COIN_KEY = 'marketDataCache';
+
   private readonly baseUrl = 'https://api.coingecko.com/api/v3';
-  private todayCoinPriceCache = new Map<string, CoinMarketPrice>();
+  private coinDataCache: { [key: string]: CoinMarketPrice} = {};
 
   readonly popularMarketCoins$ = this.fetchPopularMarketCoins().pipe(shareReplay(1));
 
   constructor(private httpClient: HttpClient) {
+    if (localStorage.getItem(this.LOCAL_STORAGE_CACHE_COIN_KEY)) {
+      this.coinDataCache = JSON.parse(localStorage.getItem(this.LOCAL_STORAGE_CACHE_COIN_KEY));
+    }
   }
 
   fetchPrices(): Observable<any> {
@@ -41,19 +46,24 @@ export class CryptoApiService {
 
   fetchCoinPrice(coinId: string, date: Date): Observable<CoinMarketPrice> {
     const cacheKey = `${coinId}_${date.getUTCDate()}_${date.getUTCMonth()}_${date.getUTCFullYear()}`;
-    if (this.todayCoinPriceCache.has(cacheKey)) {
+    if (this.coinDataCache[cacheKey]) {
       console.log('fetch coin from cache', formatDate(date, 'dd-MM-yyyy', 'en-US'));
-      return of(this.todayCoinPriceCache.get(cacheKey));
+      return of(this.coinDataCache[cacheKey]);
     } else {
       console.log('fetch coin from API', formatDate(date, 'dd-MM-yyyy', 'en-US'));
       const params = new HttpParams()
         .set('localization', String(false))
-        .set('date', formatDate(date, 'dd-MM-yyyy', 'en-US'))
+        .set('date', formatDate(date, 'dd-MM-yyyy', 'en-US'));
 
       return this.httpClient
         .get<CoinMarketPrice>(this.baseUrl + '/coins/' + coinId + '/history', {params})
-        .pipe(tap(coinPrice => this.todayCoinPriceCache.set(cacheKey, coinPrice)));
+        .pipe(tap(coinPrice => this.addCoinPriceCacheValue(cacheKey, coinPrice)));
     }
+  }
+
+  private addCoinPriceCacheValue(cacheKey: string, coinPrice: CoinMarketPrice): void {
+    this.coinDataCache[cacheKey] = coinPrice;
+    localStorage.setItem(this.LOCAL_STORAGE_CACHE_COIN_KEY, JSON.stringify(this.coinDataCache));
   }
 
   private fetchPopularMarketCoins(): Observable<MarketCoinInfos[]> {

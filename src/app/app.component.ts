@@ -7,6 +7,7 @@ import { Component } from '@angular/core';
  * Different theme color ?
  * UT Csv parsing
  * Localisation
+ *  Clean navbar
  */
 @Component({
   selector: 'app-root',

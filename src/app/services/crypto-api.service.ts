@@ -5,6 +5,7 @@ import {formatDate} from '@angular/common';
 import {CoinMarketPrice} from '../model/CoinMarketPrice';
 import {MarketCoinInfos} from '../model/MarketCoinInfos';
 import {shareReplay, tap} from 'rxjs/operators';
+import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -12,24 +13,15 @@ import {shareReplay, tap} from 'rxjs/operators';
 export class CryptoApiService {
 
   readonly LOCAL_STORAGE_CACHE_COIN_KEY = 'marketDataCache';
+  readonly BASE_URL = 'https://api.coingecko.com/api/v3';
 
-  private readonly baseUrl = 'https://api.coingecko.com/api/v3';
-  private coinDataCache: { [key: string]: CoinMarketPrice} = {};
-
+  coinDataCache: { [key: string]: CoinMarketPrice } = {};
   readonly popularMarketCoins$ = this.fetchPopularMarketCoins().pipe(shareReplay(1));
 
   constructor(private httpClient: HttpClient) {
     if (localStorage.getItem(this.LOCAL_STORAGE_CACHE_COIN_KEY)) {
       this.coinDataCache = JSON.parse(localStorage.getItem(this.LOCAL_STORAGE_CACHE_COIN_KEY));
     }
-  }
-
-  fetchPrices(): Observable<any> {
-    const params = new HttpParams()
-      .set('date', '2020-03-21')
-      .set('localization', String(false));
-
-    return this.httpClient.get(this.baseUrl + '/coins/bitcoin', {params});
   }
 
   fetchCoinInfo(coinId: string): Observable<object> {
@@ -41,22 +33,20 @@ export class CryptoApiService {
       .set('developer_data', String(false))
       .set('sparkline', String(false));
 
-    return this.httpClient.get<object>(this.baseUrl + '/coins/' + coinId, {params});
+    return this.httpClient.get<object>(this.BASE_URL + '/coins/' + coinId, {params});
   }
 
   fetchCoinPrice(coinId: string, date: Date): Observable<CoinMarketPrice> {
     const cacheKey = `${coinId}_${date.getUTCDate()}_${date.getUTCMonth()}_${date.getUTCFullYear()}`;
     if (this.coinDataCache[cacheKey]) {
-      console.log('fetch coin from cache', formatDate(date, 'dd-MM-yyyy', 'en-US'));
       return of(this.coinDataCache[cacheKey]);
     } else {
-      console.log('fetch coin from API', formatDate(date, 'dd-MM-yyyy', 'en-US'));
       const params = new HttpParams()
         .set('localization', String(false))
-        .set('date', formatDate(date, 'dd-MM-yyyy', 'en-US'));
+        .set('date', moment(date).format('DD-MM-YYYY'));
 
       return this.httpClient
-        .get<CoinMarketPrice>(this.baseUrl + '/coins/' + coinId + '/history', {params})
+        .get<CoinMarketPrice>(this.BASE_URL + '/coins/' + coinId + '/history', {params})
         .pipe(tap(coinPrice => this.addCoinPriceCacheValue(cacheKey, coinPrice)));
     }
   }
@@ -73,6 +63,6 @@ export class CryptoApiService {
       .set('per_page', String(250))
       .set('page', String(1));
 
-    return this.httpClient.get<MarketCoinInfos[]>(this.baseUrl + '/coins/markets', {params});
+    return this.httpClient.get<MarketCoinInfos[]>(this.BASE_URL + '/coins/markets', {params});
   }
 }

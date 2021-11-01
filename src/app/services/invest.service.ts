@@ -23,7 +23,6 @@ export class InvestService {
   }
 
   addInvestElements(...items: InvestElement[]): void {
-    console.log('Adding invest elements', items);
     this.elements.push(...items);
     this.saveElementsInLocalStorage();
     this.emitsInvestElements();

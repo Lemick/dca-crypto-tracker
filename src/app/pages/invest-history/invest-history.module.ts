@@ -18,6 +18,7 @@ import {NzUploadModule} from 'ng-zorro-antd/upload';
 import { ImportInvestComponent } from './import-invest/import-invest.component';
 import {NzCheckboxModule} from 'ng-zorro-antd/checkbox';
 import {NzPopconfirmModule} from 'ng-zorro-antd/popconfirm';
+import {MomentModule} from 'ngx-moment';
 
 @NgModule({
   imports: [
@@ -35,7 +36,8 @@ import {NzPopconfirmModule} from 'ng-zorro-antd/popconfirm';
     NzTableModule,
     NzUploadModule,
     NzCheckboxModule,
-    NzPopconfirmModule
+    NzPopconfirmModule,
+    MomentModule
   ],
   declarations: [InvestHistoryComponent, AddInvestComponent, ImportInvestComponent],
   exports: [InvestHistoryComponent]

@@ -3,6 +3,11 @@
 
 module.exports = function (config) {
   config.set({
+    angularCli: {
+      config: './angular-cli.json',
+      environment: 'dev',
+      sourcemap: true
+    },
     basePath: '',
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
     plugins: [

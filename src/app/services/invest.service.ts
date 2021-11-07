@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {InvestElement} from '../model/InvestElement';
 import {BehaviorSubject, Observable} from 'rxjs';
+import {MarketCurrency} from '../model/enum/MarketCurrency';
 
 @Injectable({
   providedIn: 'root'
@@ -16,9 +17,9 @@ export class InvestService {
 
   constructor() {
     if (localStorage.getItem(this.LOCAL_STORAGE_KEY)) {
-      this.elements = JSON.parse(localStorage.getItem(this.LOCAL_STORAGE_KEY));
-      this.elements.forEach(e => e.investDate = new Date(e.investDate));
-      this.emitsInvestElements();
+      this.loadStoredElements(localStorage.getItem(this.LOCAL_STORAGE_KEY));
+    } else {
+      this.initializeSampleData();
     }
   }
 
@@ -60,5 +61,40 @@ export class InvestService {
 
   private saveElementsInLocalStorage(): void {
     localStorage.setItem(this.LOCAL_STORAGE_KEY, JSON.stringify(this.elements));
+  }
+
+  private loadStoredElements(storedData: string): void {
+    this.elements = JSON.parse(storedData);
+    this.elements.forEach(e => e.investDate = new Date(e.investDate));
+    this.emitsInvestElements();
+  }
+
+  private initializeSampleData(): void {
+    const DAY_MS = 24 * 3600 * 1000;
+    this.elements = [
+      {
+        coinId: 'ethereum',
+        investDate: new Date(Date.now() - 20 * DAY_MS),
+        conversionRate: 2000,
+        valueAcquired: 0.2,
+        sourceCurrency: MarketCurrency.usd
+      },
+      {
+        coinId: 'bitcoin',
+        investDate: new Date(Date.now() - 15 * DAY_MS),
+        conversionRate: 25000,
+        valueAcquired: 0.01,
+        sourceCurrency: MarketCurrency.usd
+      },
+      {
+        coinId: 'ethereum',
+        investDate: new Date(Date.now() - 10 * DAY_MS),
+        conversionRate: 2800,
+        valueAcquired: 0.12,
+        sourceCurrency: MarketCurrency.usd
+      },
+    ];
+    this.saveElementsInLocalStorage();
+    this.emitsInvestElements();
   }
 }

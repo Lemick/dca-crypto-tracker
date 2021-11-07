@@ -1,6 +1,6 @@
 <nz-modal [(nzVisible)]="isVisible" nzTitle="Import CSV" (nzOnCancel)="handleCancel()" [nzWidth]="800"
           [nzOkDisabled]="setOfCheckedId.size === 0" (nzOnOk)="handleOk()"
-          nzOkText="Import {{ setOfCheckedId.size}} elements">
+          nzOkText="Import {{ setOfCheckedId.size }} elements">
   <ng-container *nzModalContent>
 
     <div class="table-buttons">
@@ -19,11 +19,11 @@
       [nzData]="importInvestLines">
       <thead>
       <tr>
-        <th [nzChecked]="allCheckedState" [nzIndeterminate]="intermediateCheckState"
+        <th nzWidth="10%" [nzChecked]="allCheckedState" [nzIndeterminate]="intermediateCheckState"
             (nzCheckedChange)="onAllChecked($event)"></th>
-        <th>Date</th>
-        <th>Source</th>
-        <th>Destination</th>
+        <th nzWidth="30%">Date</th>
+        <th nzWidth="30%">Source</th>
+        <th nzWidth="30%">Destination</th>
       </tr>
       </thead>
       <tbody>

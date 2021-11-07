@@ -32,13 +32,13 @@ export class InvestHistoryComponent {
 
   readonly headers: TableHeader[] = [
     {
-      name: 'Date de l investissement',
+      name: 'Invest date',
       sortOrder: 'descend',
       sortFn: (a: InvestElement, b: InvestElement) => a.investDate.getTime() - b.investDate.getTime(),
       sortDirections: ['ascend', 'descend', null],
     },
     {
-      name: 'Cryptomonnaie',
+      name: 'Crypto currency',
       sortFn: (a: InvestElement, b: InvestElement) => a.coinId.localeCompare(b.coinId),
       sortDirections: ['ascend', 'descend', null],
       filterMultiple: false,
@@ -46,20 +46,20 @@ export class InvestHistoryComponent {
       listOfFilters: []
     },
     {
-      name: 'Valeur echangée',
+      name: 'Value exchanged',
       sortFn: (a: InvestElement, b: InvestElement) => a.valueAcquired - b.valueAcquired,
       sortDirections: ['ascend', 'descend', null],
     },
     {
-      name: 'Valeur d\'achat',
+      name: 'Purchase value',
       sortFn: (a: InvestElement, b: InvestElement) => a.conversionRate - b.conversionRate,
       sortDirections: ['ascend', 'descend', null],
     },
     {
-      name: 'Gain net'
+      name: 'Net Gain'
     },
     {
-      name: 'Gain %'
+      name: '% Gain'
     }
   ];
 
@@ -126,7 +126,7 @@ export class InvestHistoryComponent {
       (a, b) => a.id !== b.id
     ).map(coin => ({text: coin.name, value: coin.id}));
 
-    this.headers.find(header => header.name === 'Cryptomonnaie').listOfFilters = listOfFilters; // TODO enum ID
+    this.headers[1].listOfFilters = listOfFilters; // TODO enum ID
   }
 
 }

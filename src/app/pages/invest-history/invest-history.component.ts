@@ -7,10 +7,13 @@ import {forkJoin, Observable} from 'rxjs';
 import {tap} from 'rxjs/operators';
 import {NzTableFilterList} from 'ng-zorro-antd/table';
 import {filterDuplicates} from '../../utils/arrayUtils';
+import {CurrencyService} from '../../services/currency.service';
+import {MarketCurrency} from '../../model/enum/MarketCurrency';
 
 interface InvestElementGain {
   gainValue: number;
   gainRate: number;
+  currency: MarketCurrency;
 }
 
 interface TableHeader {
@@ -63,15 +66,21 @@ export class InvestHistoryComponent {
     }
   ];
 
+  aggregationMarketCurrency = MarketCurrency.eur;
   isLoading = false;
+  currencyRates: Map<MarketCurrency, number> = new Map();
   investElements: InvestElement[] = [];
   todayCoinsMarketPrices: Map<string, CoinMarketPrice> = new Map();
   investElementsGains: Map<InvestElement, InvestElementGain> = new Map();
+  totalGain = 0;
 
-  constructor(private investService: InvestService, private cryptoService: CryptoApiService) {
+  constructor(private investService: InvestService, private cryptoService: CryptoApiService, private currencyApiService: CurrencyService) {
     this.investService.getInvestElements().subscribe(investElements => {
       this.isLoading = true;
-      this.loadInvestElementsMarketData(investElements);
+      this.currencyApiService.popularMarketCoins$.subscribe(currencyRates => {
+        this.currencyRates = currencyRates;
+        this.loadInvestElementsMarketData(investElements);
+      });
     });
   }
 
@@ -89,7 +98,8 @@ export class InvestHistoryComponent {
     const currentValue = investElement.valueAcquired * coinMarketPrice.market_data.current_price[investElement.sourceCurrency];
     return {
       gainValue: currentValue - pastValue,
-      gainRate: ((currentValue - pastValue) / pastValue) * 100
+      gainRate: ((currentValue - pastValue) / pastValue) * 100,
+      currency: investElement.sourceCurrency
     };
   }
 
@@ -99,6 +109,19 @@ export class InvestHistoryComponent {
       this.investElements = [];
       return;
     }
+    const coinPricesToFetch = this.gatherCoinsToFetch(distinctCoinIds);
+    forkJoin(coinPricesToFetch).subscribe(() => {
+      investElements.forEach(investElement => {
+        this.investElementsGains.set(investElement, this.calculateInvestGain(investElement));
+      });
+      this.updateCoinFilterList();
+      this.refreshTotalGain();
+      this.isLoading = false;
+      this.investElements = investElements;
+    });
+  }
+
+  private gatherCoinsToFetch(distinctCoinIds: Set<string>): Array<Observable<CoinMarketPrice>> {
     const coinPricesToFetch = new Array<Observable<CoinMarketPrice>>();
     for (const coinId of distinctCoinIds) {
       const coinPrice$ = this.cryptoService
@@ -106,14 +129,7 @@ export class InvestHistoryComponent {
         .pipe(tap(coinPrice => this.todayCoinsMarketPrices.set(coinId, coinPrice)));
       coinPricesToFetch.push(coinPrice$);
     }
-    forkJoin(coinPricesToFetch).subscribe(() => {
-      investElements.forEach(investElement => {
-        this.investElementsGains.set(investElement, this.calculateInvestGain(investElement));
-      });
-      this.updateCoinFilterList();
-      this.isLoading = false;
-      this.investElements = investElements;
-    });
+    return coinPricesToFetch;
   }
 
   deleteRow(elementToRemove: InvestElement): void {
@@ -129,4 +145,16 @@ export class InvestHistoryComponent {
     this.headers[1].listOfFilters = listOfFilters; // TODO enum ID
   }
 
+  private refreshTotalGain(): void {
+    this.totalGain = 0;
+    this.investElementsGains.forEach(investElementGain => {
+        this.totalGain += this.convertCurrency(investElementGain.gainValue, investElementGain.currency, this.aggregationMarketCurrency);
+      }
+    );
+  }
+
+  public convertCurrency(fromValue: number, sourceCurrency: MarketCurrency, destinationCurrency: MarketCurrency): number {
+    const valueInUsd = (1 / this.currencyRates.get(sourceCurrency)) * fromValue;
+    return valueInUsd * this.currencyRates.get(destinationCurrency);
+  }
 }

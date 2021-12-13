@@ -1,6 +1,9 @@
 <app-add-invest></app-add-invest>
 <app-import-invest></app-import-invest>
 
+<div>
+  Total Gain: {{ totalGain | number }} {{ this.aggregationMarketCurrency | uppercase }}
+</div>
 <div class="table-buttons">
   <button nz-button [nzType]="'primary'" (click)="showAddInvestModal()">
     <i nz-icon nzType="plus" nzTheme="outline"></i>
@@ -31,25 +34,25 @@
   </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let investElement of table.data">
-      <td>{{ investElement.investDate | date }}</td>
-      <td><img
-        src="{{ this.todayCoinsMarketPrices.get(investElement.coinId).image.small }}"/> {{ investElement.coinId | uppercase }}
-      </td>
-      <td>{{ investElement.valueAcquired }}</td>
-      <td>{{ investElement.conversionRate | number }} {{ investElement.sourceCurrency | uppercase }}</td>
-      <td
-        [ngClass]="this.investElementsGains.get(investElement).gainValue >= 0 ? 'positive' : 'negative'">
-        {{ this.investElementsGains.get(investElement).gainValue | number}} {{ investElement.sourceCurrency | uppercase }}
-      </td>
-      <td
-        [ngClass]="this.investElementsGains.get(investElement).gainRate >= 0 ? 'positive' : 'negative'">
-        {{ this.investElementsGains.get(investElement).gainRate | number }}%
-      </td>
-      <td>
-        <a nz-popconfirm nzPopconfirmTitle="Sure to delete?" (nzOnConfirm)="deleteRow(investElement)">Delete</a>
-      </td>
-    </tr>
+  <tr *ngFor="let investElement of table.data">
+    <td>{{ investElement.investDate | date }}</td>
+    <td><img
+      src="{{ this.todayCoinsMarketPrices.get(investElement.coinId).image.small }}"/> {{ investElement.coinId | uppercase }}
+    </td>
+    <td>{{ investElement.valueAcquired }}</td>
+    <td>{{ investElement.conversionRate | number }} {{ investElement.sourceCurrency | uppercase }}</td>
+    <td
+      [ngClass]="this.investElementsGains.get(investElement).gainValue >= 0 ? 'positive' : 'negative'">
+      {{ this.investElementsGains.get(investElement).gainValue | number}} {{ investElement.sourceCurrency | uppercase }}
+    </td>
+    <td
+      [ngClass]="this.investElementsGains.get(investElement).gainRate >= 0 ? 'positive' : 'negative'">
+      {{ this.investElementsGains.get(investElement).gainRate | number }}%
+    </td>
+    <td>
+      <a nz-popconfirm nzPopconfirmTitle="Sure to delete?" (nzOnConfirm)="deleteRow(investElement)">Delete</a>
+    </td>
+  </tr>
   </tbody>
 </nz-table>
 

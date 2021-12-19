@@ -4,7 +4,7 @@
 
 A simple client-only web application for tracking your crypto investments. Can be seen here: https://dca-crypto-tracker.netlify.app/invest.
 
-The local storage DB or the value of the assets are never exchanged on the network.
+No information about the assets (persisted in local storage) is exchanged on the network.
 
 The current features are:
 - Add/Remove invests from the local DB
